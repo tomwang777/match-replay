@@ -1,8 +1,0 @@
-{
-  "crons": [
-    {
-      "path": "/api/replays/discover",
-      "schedule": "*/30 * * * *"
-    }
-  ]
-}

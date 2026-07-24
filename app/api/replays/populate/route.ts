@@ -11,16 +11,13 @@ import { updateBracketResults } from "@/lib/bracket-fetcher";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
-function isAuthorized(request: Request): boolean {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return true;
-  const auth = request.headers.get("authorization");
-  return auth === `Bearer ${secret}`;
-}
-
-export async function POST(request: Request) {
-  if (!isAuthorized(request)) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+export async function POST() {
+  // Local bootstrap tool only. Discovery scrapes external sites and writes to
+  // the local `data/` directory, which is neither possible nor wanted on the
+  // deployed (read-only, static) site. Refresh links locally with
+  // `npm run dev` + `npm run populate`, then commit data/*.json and redeploy.
+  if (process.env.NODE_ENV === "production") {
+    return Response.json({ error: "Not found" }, { status: 404 });
   }
 
   const storedBracket = readBracketResults();

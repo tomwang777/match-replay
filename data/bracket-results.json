@@ -22,5 +22,13 @@
   "102": {
     "winner": "Argentina",
     "loser": "England"
+  },
+  "103": {
+    "winner": "England",
+    "loser": "France"
+  },
+  "104": {
+    "winner": "Spain",
+    "loser": "Argentina"
   }
 }

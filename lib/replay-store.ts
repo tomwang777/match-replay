@@ -2,11 +2,6 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
 import { join } from "path";
 import type { ReplaySourcesStore } from "@/lib/replay-store-types";
 import type { MatchReplaySources } from "@/lib/replay-sources";
-import {
-  isMissingCctv,
-  isSourceComplete,
-  needsReplayDiscovery,
-} from "@/lib/replay-helpers";
 
 const DATA_DIR = join(process.cwd(), "data");
 const DATA_PATH = join(DATA_DIR, "replay-sources.json");
@@ -77,7 +72,8 @@ export function clearReplaySource(
   delete next[key];
 
   if (Object.keys(next).length === 0) {
-    const { [matchNumber]: _removed, ...rest } = store;
+    const rest = { ...store };
+    delete rest[matchNumber];
     return rest;
   }
 

@@ -1,7 +1,6 @@
 "use client";
 
 import type { Match } from "@/lib/matches";
-import { getMatchStatus } from "@/lib/matches";
 import type { ReplaySourcesStore } from "@/lib/replay-store-types";
 import { replaySourcesForMatch } from "@/lib/replay-sources";
 import { useLang } from "@/components/LangContext";
@@ -10,12 +9,12 @@ import { teamNameCn } from "@/lib/team-names-cn";
 type MatchCardProps = {
   match: Match;
   replayStore: ReplaySourcesStore;
+  /** True once the match has finished, so replay links may be shown. */
+  replaysAvailable: boolean;
 };
 
-export function MatchCard({ match, replayStore }: MatchCardProps) {
+export function MatchCard({ match, replayStore, replaysAvailable }: MatchCardProps) {
   const { t, lang } = useLang();
-  const status = getMatchStatus(match);
-  const replaysAvailable = status === "finished";
   const sources = replaySourcesForMatch(match.matchNumber, replayStore);
 
   const stageDisplay = t.stageLabel[match.stage] ?? match.stage;

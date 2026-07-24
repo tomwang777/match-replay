@@ -1,13 +1,6 @@
 import { worldCup2026Matches, type Match } from "@/lib/matches";
 import { TEAM_NAMES_CN, teamNameCn } from "@/lib/team-names-cn";
-import {
-  extractGuidFromHtml,
-  fetchCctvPageHtml,
-  fetchCctvVideoMeta,
-  isHighlightTitle,
-  isFullMatchDuration,
-  validateCctvReplayUrl,
-} from "@/lib/cctv-validation";
+import { validateCctvReplayUrl } from "@/lib/cctv-validation";
 
 const USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
@@ -44,7 +37,7 @@ function decodeCctvHtml(buffer: ArrayBuffer): string {
   }
 }
 
-function catalogPageUrls(_now = new Date()): string[] {
+function catalogPageUrls(): string[] {
   // Daily archive pages (sports.cctv.com/YYYY/MM/DD/index.shtml) are geo-blocked
   // outside China. Only use the static pages that are globally accessible.
   return [...STATIC_CATALOG_PAGES];
@@ -139,12 +132,12 @@ async function concurrent<T>(
  * Scrape sports.cctv.com listings and map full-match replay pages to FIFA match numbers.
  * Catalog pages are fetched in parallel; video URL validation uses a concurrency pool.
  */
-export async function buildCctvCatalog(now = new Date()): Promise<CctvCatalog> {
+export async function buildCctvCatalog(): Promise<CctvCatalog> {
   const catalog: CctvCatalog = new Map();
   const videoUrls = new Set<string>();
 
   // Fetch all catalog listing pages in parallel
-  const pageUrls = catalogPageUrls(now);
+  const pageUrls = catalogPageUrls();
   const pageHtmls = await Promise.allSettled(pageUrls.map((u) => fetchHtml(u)));
 
   for (const result of pageHtmls) {

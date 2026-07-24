@@ -3,8 +3,7 @@
 import {
   createContext,
   useContext,
-  useEffect,
-  useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 
@@ -24,6 +23,8 @@ type Translations = {
   // MatchList tabs
   tabActive: string;
   tabFinished: string;
+  // Usage hint shown above the match list
+  usageHint: string;
   // Filters
   filterAll: string;
   filterGroupStage: string;
@@ -61,12 +62,14 @@ const EN: Translations = {
   heroTagline: "We Are 26",
   heroTitle: "Match Replays",
   heroDesc:
-    "All 104 matches from June 11–July 19, 2026 — official draw fixtures with no scores and no spoiler thumbnails. Pick a replay link and watch like it's live.",
+    "Every match of the 2026 World Cup, June 11–July 19. We never show scores or spoiler thumbnails — just open a match, pick a link, and watch the full replay as if it were live.",
   heroCities: "16 cities",
   heroTeams: "48 teams",
   heroSpoilerFree: "Spoiler-free",
   tabActive: "Upcoming & Live",
   tabFinished: "Finished",
+  usageHint:
+    "How it works: each match shows only the teams and kickoff time — never the score. Open one and tap a link (CCTV, Migu, or YouTube) to watch the replay.",
   filterAll: "All",
   filterGroupStage: "Group Stage",
   filterAllGroups: "All Groups",
@@ -91,7 +94,8 @@ const EN: Translations = {
     "Third-place play-off": "3rd Place",
     Final: "Final",
   },
-  footerText: "Replay discovery agent — coming soon",
+  footerText:
+    "Made by a fan, for fans — no scores, no spoilers. Not affiliated with FIFA or any broadcaster; all replays are hosted on the linked platforms.",
   donateHeading: "Support this project",
   donateDesc: "Keeping replays spoiler-free takes time. If this saved your weekend, your support means a lot.",
   donateQrLabel: "WeChat Pay",
@@ -105,12 +109,14 @@ const ZH: Translations = {
   heroTagline: "We Are 26",
   heroTitle: "赛事回放",
   heroDesc:
-    "2026年6月11日至7月19日全部104场比赛——官方抽签赛程，无比分，无剧透缩略图。选择回放链接，如临现场般观赛。",
+    "2026世界杯全部比赛，6月11日至7月19日。绝不显示比分，也没有剧透缩略图——打开比赛，选一个链接，如临现场般观看完整回放。",
   heroCities: "16座城市",
   heroTeams: "48支球队",
   heroSpoilerFree: "无剧透",
   tabActive: "即将 / 进行中",
   tabFinished: "已完赛",
+  usageHint:
+    "使用方法：每场比赛只显示球队和开赛时间，绝不显示比分。打开比赛，点击任意链接（央视 / 咪咕 / YouTube）即可观看回放。",
   filterAll: "全部",
   filterGroupStage: "小组赛",
   filterAllGroups: "所有小组",
@@ -135,7 +141,8 @@ const ZH: Translations = {
     "Third-place play-off": "季军赛",
     Final: "决赛",
   },
-  footerText: "回放自动发现 — 即将上线",
+  footerText:
+    "球迷为球迷制作 —— 无比分，无剧透。本站与国际足联及各转播方无隶属关系，回放均托管于所链接的平台。",
   donateHeading: "支持本项目",
   donateDesc: "维护无剧透回放需要付出时间和精力。如果这个网站帮到了你，欢迎扫码支持 🙏",
   donateQrLabel: "微信支付",
@@ -157,18 +164,39 @@ const LangContext = createContext<LangContextValue>({
   toggle: () => {},
 });
 
-export function LangProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState<Lang>("en");
+// Language preference lives in localStorage. useSyncExternalStore reads it
+// without a setState-in-effect and keeps every subscriber in sync on toggle.
+const listeners = new Set<() => void>();
 
-  useEffect(() => {
-    const stored = localStorage.getItem("lang") as Lang | null;
-    if (stored === "en" || stored === "zh") setLang(stored);
-  }, []);
+function subscribe(onChange: () => void): () => void {
+  listeners.add(onChange);
+  return () => {
+    listeners.delete(onChange);
+  };
+}
+
+function getLangSnapshot(): Lang {
+  return localStorage.getItem("lang") === "zh" ? "zh" : "en";
+}
+
+function getServerLangSnapshot(): Lang {
+  return "en";
+}
+
+function persistLang(lang: Lang) {
+  localStorage.setItem("lang", lang);
+  for (const listener of listeners) listener();
+}
+
+export function LangProvider({ children }: { children: ReactNode }) {
+  const lang = useSyncExternalStore(
+    subscribe,
+    getLangSnapshot,
+    getServerLangSnapshot,
+  );
 
   function toggle() {
-    const next: Lang = lang === "en" ? "zh" : "en";
-    setLang(next);
-    localStorage.setItem("lang", next);
+    persistLang(lang === "en" ? "zh" : "en");
   }
 
   return (

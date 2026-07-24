@@ -510,9 +510,13 @@
     "youtube": "https://www.youtube.com/watch?v=2U3hH7g5dIg"
   },
   "103": {
-    "migu": "https://www.miguvideo.com/p/live/120000575554"
+    "migu": "https://www.miguvideo.com/p/live/120000575554",
+    "cctv": "https://sports.cctv.com/2026/07/19/VIDElDvAKFa10RkliL2uYM8J260719.shtml",
+    "youtube": "https://www.youtube.com/watch?v=dTGW5m2LoyE"
   },
   "104": {
-    "migu": "https://www.miguvideo.com/p/live/120000575553"
+    "migu": "https://www.miguvideo.com/p/live/120000575553",
+    "cctv": "https://sports.cctv.com/2026/07/20/VIDEbacT0CfI0sIpt9kIn3Pj260720.shtml",
+    "youtube": "https://www.youtube.com/watch?v=6HaHNYjnghE"
   }
 }

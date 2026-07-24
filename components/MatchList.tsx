@@ -1,25 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { MatchCard } from "@/components/MatchCard";
-import {
-  partitionMatches,
-  worldCup2026Matches,
-  type Match,
-} from "@/lib/matches";
-import {
-  finishedMatchesMissingCctv,
-  finishedMatchesNeedingReplays,
-} from "@/lib/replay-helpers";
+import { partitionMatches, type Match } from "@/lib/matches";
 import type { ReplaySourcesStore } from "@/lib/replay-store-types";
-import { applyBracketToMatches } from "@/lib/bracket-resolver";
-import type { BracketResults } from "@/lib/bracket-types";
 import { useLang } from "@/components/LangContext";
 import { teamNameCn } from "@/lib/team-names-cn";
-
-const REFRESH_INTERVAL_MS = 60_000;
-const DISCOVER_INTERVAL_MS = 5 * 60_000;
-const DISCOVER_CCTV_INTERVAL_MS = 2 * 60_000;
 
 const STAGES = [
   "Round of 32",
@@ -34,98 +20,28 @@ type StageFilter = "All" | "Group Stage" | (typeof STAGES)[number];
 
 type Tab = "active" | "finished";
 
-type MatchPartition = {
-  active: Match[];
-  finished: Match[];
+type MatchListProps = {
+  /** Matches with knockout placeholders already resolved to real team names. */
+  matches: Match[];
+  /** Replay links keyed by FIFA match number. */
+  replayStore: ReplaySourcesStore;
 };
 
-export function MatchList() {
+export function MatchList({ matches, replayStore }: MatchListProps) {
   const { t, lang } = useLang();
-  const [tab, setTab] = useState<Tab>("active");
-  const [partition, setPartition] = useState<MatchPartition>(() =>
-    partitionMatches(worldCup2026Matches),
-  );
-  const [replayStore, setReplayStore] = useState<ReplaySourcesStore>({});
-  const lastDiscoverAtRef = useRef(0);
-  const bracketRef = useRef<BracketResults>({});
 
-  // Filters (only applied to finished tab)
+  const partition = useMemo(() => partitionMatches(matches), [matches]);
+
+  // Land on the tab that has content: "Finished" once the tournament is over.
+  const [tab, setTab] = useState<Tab>(
+    partition.active.length > 0 ? "active" : "finished",
+  );
+
+  // Filters (only applied to the finished tab)
   const [stageFilter, setStageFilter] = useState<StageFilter>("All");
   const [groupFilter, setGroupFilter] = useState("All");
   const [teamFilter, setTeamFilter] = useState("All");
   const [newestFirst, setNewestFirst] = useState(true);
-
-  const sync = useCallback(async () => {
-    const resolved = applyBracketToMatches(worldCup2026Matches, bracketRef.current);
-    const nextPartition = partitionMatches(resolved);
-    setPartition(nextPartition);
-
-    try {
-      const replaysRes = await fetch("/api/replays", { cache: "no-store" });
-      let store: ReplaySourcesStore = {};
-
-      if (replaysRes.ok) {
-        const data = (await replaysRes.json()) as {
-          sources: ReplaySourcesStore;
-          bracket?: BracketResults;
-        };
-        store = data.sources;
-        setReplayStore(store);
-
-        if (data.bracket) {
-          bracketRef.current = data.bracket;
-          const reResolved = applyBracketToMatches(worldCup2026Matches, data.bracket);
-          setPartition(partitionMatches(reResolved));
-        }
-      }
-
-      const missingCctv = finishedMatchesMissingCctv(
-        nextPartition.finished,
-        store,
-      );
-      const needsReplays = finishedMatchesNeedingReplays(
-        nextPartition.finished,
-        store,
-      );
-
-      const discoverInterval = missingCctv
-        ? DISCOVER_CCTV_INTERVAL_MS
-        : DISCOVER_INTERVAL_MS;
-
-      const shouldDiscover =
-        needsReplays &&
-        Date.now() - lastDiscoverAtRef.current >= discoverInterval;
-
-      if (shouldDiscover) {
-        const discoverRes = await fetch("/api/replays/discover", {
-          method: "POST",
-          cache: "no-store",
-        });
-        if (discoverRes.ok) {
-          const data = (await discoverRes.json()) as {
-            sources: ReplaySourcesStore;
-            bracket?: BracketResults;
-          };
-          setReplayStore(data.sources);
-          lastDiscoverAtRef.current = Date.now();
-
-          if (data.bracket) {
-            bracketRef.current = data.bracket;
-            const reResolved = applyBracketToMatches(worldCup2026Matches, data.bracket);
-            setPartition(partitionMatches(reResolved));
-          }
-        }
-      }
-    } catch {
-      // keep showing last known replay links on network errors
-    }
-  }, []);
-
-  useEffect(() => {
-    sync();
-    const intervalId = window.setInterval(sync, REFRESH_INTERVAL_MS);
-    return () => window.clearInterval(intervalId);
-  }, [sync]);
 
   // Finished matches ordered by user preference
   const finishedOrdered = useMemo(
@@ -179,8 +95,7 @@ export function MatchList() {
     return list;
   }, [finishedOrdered, stageFilter, groupFilter, teamFilter]);
 
-  const activeMatches = partition.active;
-  const displayMatches = tab === "active" ? activeMatches : filteredFinished;
+  const displayMatches = tab === "active" ? partition.active : filteredFinished;
 
   // Returns the translated display label for a stage filter pill
   function stageFilterLabel(s: StageFilter): string {
@@ -191,6 +106,11 @@ export function MatchList() {
 
   return (
     <div>
+      {/* How-to hint for first-time visitors */}
+      <p className="mb-4 rounded-xl border border-border bg-surface-elevated px-4 py-3 text-sm leading-relaxed text-muted">
+        {t.usageHint}
+      </p>
+
       {/* Main tabs */}
       <div
         role="tablist"
@@ -302,7 +222,11 @@ export function MatchList() {
         <ul className="flex flex-col gap-5" role="tabpanel">
           {displayMatches.map((match) => (
             <li key={match.id}>
-              <MatchCard match={match} replayStore={replayStore} />
+              <MatchCard
+                match={match}
+                replayStore={replayStore}
+                replaysAvailable={tab === "finished"}
+              />
             </li>
           ))}
         </ul>

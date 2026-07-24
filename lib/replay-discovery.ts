@@ -117,7 +117,11 @@ export function applyCctvCatalog(
   return { store: nextStore, applied };
 }
 
-/** Remove highlight clips or other invalid CCTV links already stored. */
+/**
+ * Remove stored CCTV URLs whose pages no longer resolve (HTTP non-200).
+ * Transient errors, rate-limits, and geo-blocks are treated as "keep" so we
+ * never drop a link that is actually fine — see {@link validateCctvUrl}.
+ */
 export async function sanitizeInvalidCctvInStore(
   store = readReplaySourcesSync(),
 ): Promise<{ store: ReplaySourcesStore; removed: number[] }> {
@@ -453,7 +457,7 @@ export async function discoverReplayLinks(
   const sanitizeResult = await sanitizeInvalidCctvInStore(store);
   store = sanitizeResult.store;
 
-  const cctvCatalog = await buildCctvCatalog(now);
+  const cctvCatalog = await buildCctvCatalog();
 
   const catalogResult = applyCctvCatalog(cctvCatalog, store, now);
   store = catalogResult.store;
@@ -526,7 +530,7 @@ export async function discoverAllReplayLinks(
   const sanitizeResult = await sanitizeInvalidCctvInStore(store);
   store = sanitizeResult.store;
 
-  const cctvCatalog = await buildCctvCatalog(now);
+  const cctvCatalog = await buildCctvCatalog();
 
   const catalogResult = applyCctvCatalog(cctvCatalog, store, now);
   store = catalogResult.store;
