@@ -6,6 +6,7 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
+import type { CompetitionCategory } from "@/lib/daily-matches";
 
 export type Lang = "en" | "zh";
 
@@ -32,6 +33,7 @@ type Translations = {
   dailyTitle: string;
   dailyHint: string;
   dailyEmpty: string;
+  dailyCategoryLabel: Record<CompetitionCategory, string>;
   statusLive: string;
   statusUpcoming: string;
   statusFinished: string;
@@ -86,6 +88,12 @@ const EN: Translations = {
   dailyHint:
     "The latest results from leagues in season — still spoiler-free, with no scores shown. Pick a link to watch the replay.",
   dailyEmpty: "No matches scheduled for today.",
+  dailyCategoryLabel: {
+    league: "Leagues",
+    continental: "Continental",
+    cup: "Domestic Cups",
+    "national-team": "National Teams",
+  },
   statusLive: "Live",
   statusUpcoming: "Upcoming",
   statusFinished: "Full-time",
@@ -142,6 +150,12 @@ const ZH: Translations = {
   dailyHint:
     "当季各大联赛的最新赛果——同样无剧透，不显示比分。点击任意链接即可观看回放。",
   dailyEmpty: "今天暂无比赛安排。",
+  dailyCategoryLabel: {
+    league: "联赛",
+    continental: "洲际赛事",
+    cup: "国内杯赛",
+    "national-team": "国家队赛事",
+  },
   statusLive: "进行中",
   statusUpcoming: "即将开始",
   statusFinished: "已结束",

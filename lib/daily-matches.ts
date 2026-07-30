@@ -7,6 +7,14 @@
 
 export type DailyMatchStatus = "upcoming" | "live" | "finished";
 
+/**
+ * Broad grouping used by the competition filter tabs: domestic leagues,
+ * continental club cups (UCL, Copa Libertadores, ...), major domestic cups
+ * (FA Cup, Copa del Rey, ...), and national-team competitions (Euro, Copa
+ * América, ...).
+ */
+export type CompetitionCategory = "league" | "continental" | "cup" | "national-team";
+
 export type DailyReplayLink = {
   label: string;
   url: string;
@@ -16,6 +24,7 @@ export type DailyMatch = {
   id: string;
   competition: string;
   competitionZh: string;
+  category: CompetitionCategory;
   homeTeam: string;
   /** Curated Chinese name, when the club is in lib/club-names-cn.ts. */
   homeTeamZh?: string;
