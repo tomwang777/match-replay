@@ -20,11 +20,21 @@ type Translations = {
   heroCities: string;
   heroTeams: string;
   heroSpoilerFree: string;
+  // Header section nav
+  navWorldCup: string;
+  navToday: string;
   // MatchList tabs
   tabActive: string;
   tabFinished: string;
   // Usage hint shown above the match list
   usageHint: string;
+  // Daily matches section
+  dailyTitle: string;
+  dailyHint: string;
+  dailyEmpty: string;
+  statusLive: string;
+  statusUpcoming: string;
+  statusFinished: string;
   // Filters
   filterAll: string;
   filterGroupStage: string;
@@ -66,10 +76,19 @@ const EN: Translations = {
   heroCities: "16 cities",
   heroTeams: "48 teams",
   heroSpoilerFree: "Spoiler-free",
+  navWorldCup: "World Cup",
+  navToday: "Today's Matches",
   tabActive: "Upcoming & Live",
   tabFinished: "Finished",
   usageHint:
     "How it works: each match shows only the teams and kickoff time — never the score. Open one and tap a link (CCTV, Migu, or YouTube) to watch the replay.",
+  dailyTitle: "Today's Matches",
+  dailyHint:
+    "The latest results from leagues in season — still spoiler-free, with no scores shown. Pick a link to watch the replay.",
+  dailyEmpty: "No matches scheduled for today.",
+  statusLive: "Live",
+  statusUpcoming: "Upcoming",
+  statusFinished: "Full-time",
   filterAll: "All",
   filterGroupStage: "Group Stage",
   filterAllGroups: "All Groups",
@@ -113,10 +132,19 @@ const ZH: Translations = {
   heroCities: "16座城市",
   heroTeams: "48支球队",
   heroSpoilerFree: "无剧透",
+  navWorldCup: "世界杯",
+  navToday: "今日比赛",
   tabActive: "即将 / 进行中",
   tabFinished: "已完赛",
   usageHint:
     "使用方法：每场比赛只显示球队和开赛时间，绝不显示比分。打开比赛，点击任意链接（央视 / 咪咕 / YouTube）即可观看回放。",
+  dailyTitle: "今日比赛",
+  dailyHint:
+    "当季各大联赛的最新赛果——同样无剧透，不显示比分。点击任意链接即可观看回放。",
+  dailyEmpty: "今天暂无比赛安排。",
+  statusLive: "进行中",
+  statusUpcoming: "即将开始",
+  statusFinished: "已结束",
   filterAll: "全部",
   filterGroupStage: "小组赛",
   filterAllGroups: "所有小组",
