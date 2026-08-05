@@ -71,6 +71,10 @@ export function DailyMatchCard({ match }: DailyMatchCardProps) {
 }
 
 function ClubLogo({ src, alt }: { src: string; alt: string }) {
+  // Some clubs (e.g. newer/rebranded CSL sides) have no crest asset in
+  // ESPN's data — show a generic placeholder rather than drop the match.
+  if (!src) return <ShieldIcon />;
+
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
@@ -81,6 +85,24 @@ function ClubLogo({ src, alt }: { src: string; alt: string }) {
       loading="lazy"
       className="h-6 w-6 shrink-0 object-contain"
     />
+  );
+}
+
+function ShieldIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-6 w-6 shrink-0 text-muted"
+      aria-hidden
+    >
+      <path d="M12 3 4.5 6v6c0 4.5 3 7.5 7.5 9 4.5-1.5 7.5-4.5 7.5-9V6L12 3Z" />
+    </svg>
   );
 }
 

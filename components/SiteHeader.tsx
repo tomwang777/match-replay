@@ -35,11 +35,11 @@ export function SiteHeader() {
         aria-label="Sections"
         className="mx-auto flex max-w-3xl items-center gap-1.5 px-4 pb-2.5 sm:px-6"
       >
-        <NavTab href="/" active={pathname === "/"}>
-          {t.navWorldCup}
-        </NavTab>
         <NavTab href="/daily" active={pathname === "/daily"}>
           {t.navToday}
+        </NavTab>
+        <NavTab href="/" active={pathname === "/"}>
+          {t.navWorldCup}
         </NavTab>
       </nav>
     </header>

@@ -602,6 +602,11 @@ export const CLUB_NAMES_CN: Record<string, string> = {
   "Selangor FC": "雪兰莪",
   Sepahan: "塞帕汗",
   "Tai Po FC": "大埔",
+
+  // Clubs spotted in preseason/friendly fixtures, not otherwise covered above
+  Trabzonspor: "特拉布宗体育",
+  "FC Volendam": "沃伦丹",
+  "Jeju United": "济州联",
 };
 
 /**

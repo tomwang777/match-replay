@@ -34,6 +34,7 @@ type Translations = {
   dailyHint: string;
   dailyEmpty: string;
   dailyCategoryLabel: Record<CompetitionCategory, string>;
+  dailyFilterAllCompetitions: string;
   statusLive: string;
   statusUpcoming: string;
   statusFinished: string;
@@ -93,7 +94,9 @@ const EN: Translations = {
     continental: "Continental",
     cup: "Domestic Cups",
     "national-team": "National Teams",
+    friendly: "Friendlies",
   },
+  dailyFilterAllCompetitions: "All Competitions",
   statusLive: "Live",
   statusUpcoming: "Upcoming",
   statusFinished: "Full-time",
@@ -155,7 +158,9 @@ const ZH: Translations = {
     continental: "洲际赛事",
     cup: "国内杯赛",
     "national-team": "国家队赛事",
+    friendly: "友谊赛",
   },
+  dailyFilterAllCompetitions: "所有赛事",
   statusLive: "进行中",
   statusUpcoming: "即将开始",
   statusFinished: "已结束",
