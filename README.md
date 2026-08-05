@@ -7,23 +7,31 @@ as if it were live.
 
 The site has two sections:
 
+- **Today's Matches** (default landing tab) — real, recently-finished results
+  pulled live from 38 competitions, always shown as selectable subtabs even
+  when a competition currently has no matches (e.g. the Big Five European
+  leagues and UCL during the summer break), grouped into 5 categories:
+  - **Leagues** (12): Premier League, La Liga, Bundesliga, Serie A, Ligue 1,
+    MLS, Liga MX, Brasileirão, Argentine Liga Profesional, Chinese Super
+    League, J1 League, Saudi Pro League
+  - **Continental** (8): UEFA Champions League & Europa League, AFC Champions
+    League Elite & Two, CAF Champions League, Concacaf Champions Cup, Copa
+    Libertadores & Sudamericana
+  - **Domestic Cups** (9): FA Cup, Copa del Rey, DFB-Pokal, Coppa Italia,
+    Coupe de France, U.S. Open Cup, Copa Argentina, Copa do Brasil, Copa MX
+  - **National Teams** (7): UEFA Euro & Nations League, Copa América, Africa
+    Cup of Nations, AFC Asian Cup, Concacaf Gold Cup & Nations League
+  - **Friendlies** (2): Club Friendly, International Friendly — often the
+    only action for big clubs/teams outside their competitive windows
+
+  Matches are grouped by competition with a fold toggle per section, so a
+  busy competition doesn't force endless scrolling for matches you don't
+  care about.
 - **World Cup** — all 104 fixtures of FIFA World Cup 2026 (Jun 11 – Jul 19,
   2026), grouped into **Upcoming & Live** and **Finished**, filterable by
   stage, group, and team. Replay links: CCTV, Migu, YouTube.
-- **Today's Matches** — real, recently-finished results pulled live from 36
-  competitions: 12 domestic leagues (Premier League, La Liga, Bundesliga,
-  Serie A, Ligue 1, MLS, Liga MX, Brasileirão, Argentine Liga Profesional,
-  Chinese Super League, J1 League, Saudi Pro League), 8 continental club
-  cups (UEFA Champions League & Europa League, AFC Champions League Elite &
-  Two, CAF Champions League, Concacaf Champions Cup, Copa Libertadores &
-  Sudamericana), 9 major domestic cups (FA Cup, Copa del Rey, DFB-Pokal,
-  Coppa Italia, Coupe de France, U.S. Open Cup, Copa Argentina, Copa do
-  Brasil, Copa MX), and 7 national-team tournaments (UEFA Euro & Nations
-  League, Copa América, Africa Cup of Nations, AFC Asian Cup, Concacaf Gold
-  Cup & Nations League). Filterable by category (Leagues / Continental /
-  Domestic Cups / National Teams).
 
-Other features: English / 中文 (515 curated club names + 157 country names),
+Other features: English / 中文 (518 curated club names + 157 country names),
 light / dark theme, both remembered per browser.
 
 ## How it's built
@@ -38,10 +46,21 @@ filesystem needed in production.
 
 **Today's Matches** is refreshed automatically once a day using Next.js's
 built-in ISR (Incremental Static Regeneration — see `export const revalidate`
-in [`app/daily/page.tsx`](app/daily/page.tsx)): Vercel serves the cached page
-instantly and revalidates it in the background, so there's still no cron job,
-worker, or database to run, and it works the same on Vercel's free Hobby
-tier. Fixture data comes live from [ESPN's public soccer API](lib/daily-fetcher.ts).
+in [`app/daily/page.tsx`](app/daily/page.tsx)). ISR only regenerates on the
+next real visitor request after the cache goes stale, so on a quiet site it
+could sit un-refreshed indefinitely — [`vercel.json`](vercel.json) adds a
+single read-only cron that pings `/daily` once a day (the max Vercel's free
+Hobby tier allows) purely to trigger that regeneration on schedule, regardless
+of traffic. It doesn't scrape or write anything.
+
+The full list of tracked competitions — what to poll from ESPN and what
+subtabs to render — lives in one place,
+[`TRACKED_COMPETITIONS`](lib/daily-matches.ts), so the fetcher and the UI
+can't drift out of sync. Fixture data comes live from
+[ESPN's public soccer API](lib/daily-fetcher.ts); club and country names are
+curated in [`lib/club-names-cn.ts`](lib/club-names-cn.ts) and
+[`lib/team-names-cn.ts`](lib/team-names-cn.ts), falling back to the
+English/native name for anything not yet covered.
 
 ## Getting started
 
@@ -68,10 +87,11 @@ Then commit the updated `data/*.json` and redeploy. Optional: set
 
 ## Deploying to Vercel
 
-No environment variables or cron setup required:
+No environment variables required:
 
 1. Push this repo to GitHub.
-2. Import it in [Vercel](https://vercel.com/new) and deploy.
+2. Import it in [Vercel](https://vercel.com/new) and deploy — `vercel.json`'s
+   cron is picked up automatically.
 
 To publish new World Cup replay links later, run `npm run populate` locally,
 commit the changed `data/*.json`, and push. Today's Matches needs no manual
